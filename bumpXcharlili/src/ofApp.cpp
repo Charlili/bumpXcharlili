@@ -14,6 +14,7 @@ void ofApp::setup(){
     
     webcam.setup(320, 240);
     rgb.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
+    rgb.mirror(false, true);
     grayscale.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     background.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     difference.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
@@ -87,6 +88,8 @@ void ofApp::draw(){
     // Get center point of the screen
     // Can be handy to position stuff
     
+    //drawBlobs();
+    
     int x = ncScene.getWidth() * 0.5;
     int y = ncScene.getHeight() * 0.5;
     
@@ -104,7 +107,6 @@ void ofApp::draw(){
     ofDrawBox(300);
     ofDrawBox(600);
     ofDrawBox(1200);
-    //drawBlobs();
     
     // Close drawing to FBO, export texture
     // to Syphon and preview our scene
@@ -118,16 +120,22 @@ void ofApp::draw(){
     
     //DebugDraw
     webcam.draw(220, 10);
-    debugDraw();
+    //debugDraw();
     
 }
 void ofApp::drawBlobs(){
     ofPushMatrix();
     ofColor c(255, 255, 255);
     ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
-    
+    int scale = ncScene.getWidth() / webcam.getTexture().getWidth();
     for(int i = 0; i < contour.nBlobs; i++) {
         ofRectangle r = contour.blobs.at(i).boundingRect;
+        //r.y -= ncScene.getHeight();
+        //r.x -= ncScene.getWidth()/2;
+        r.x *= scale;
+        r.y *= scale;
+        r.width *= scale;
+        r.height *= scale;
         c.setHsb(10 * i,200, 200);
         ofSetColor(c);
         ofDrawRectangle(r);
@@ -139,12 +147,13 @@ void ofApp::debugDraw(){
     ofPushMatrix();
     grayscale.draw(0, 520, 640, 240);
     //background.draw(0, 270, 640, 240);
-    difference.draw(640, 520, 640, 240);
+    //difference.draw(640, 520, 640, 240);
     //contour.draw(0, 520, 640, 240);
     
     ofColor c(255, 255, 255);
-    for(int i = 1; i < contour.nBlobs; i++) {
+    for(int i = 0; i < contour.nBlobs -1; i++) {
         ofRectangle r = contour.blobs.at(i).boundingRect;
+        r.x += 0;
         r.y += 520;
         c.setHsb(10 * i,200, 200);
         ofSetColor(c);
