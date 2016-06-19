@@ -30,6 +30,8 @@ public:
     // My app...
     
     ncVideoGrabber webcam;
+    ofPixels pxs;
+    ofImage image;
     ofxCvColorImage rgb;
     ofxCvGrayscaleImage grayscale;
     ofxCvGrayscaleImage background;

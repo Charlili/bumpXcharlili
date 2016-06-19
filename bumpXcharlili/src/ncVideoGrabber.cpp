@@ -25,7 +25,7 @@ void ncVideoGrabber::setup(int _width, int _height){
     
     grabber1.initGrabber(w, h);
     grabber2.initGrabber(w, h);
-    texture.allocate(2*w, h);
+    texture.allocate(2*w, h, GL_RGB);
     
 }
 
