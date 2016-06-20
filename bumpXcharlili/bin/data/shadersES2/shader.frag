@@ -1,9 +1,9 @@
 
 precision highp float;
 
-uniform vec4 globalColor;
+uniform vec4 mouseColor;
 
 void main()
 {
-	gl_FragColor = globalColor;
+	gl_FragColor = mouseColor;
 }

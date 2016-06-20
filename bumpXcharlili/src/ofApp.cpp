@@ -103,14 +103,30 @@ void ofApp::draw(){
     //change color from mouse position
     float percentX = mouseX / (float)ofGetWidth();
     percentX = ofClamp(percentX, 0, 1);
-    ofColor colorLeft = ofColor::magenta;
-    ofColor colorRight = ofColor::cyan;
-    ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
-    ofSetColor(colorMix);
+    ofFloatColor colorLeft = ofColor::magenta;
+    ofFloatColor colorRight = ofColor::cyan;
+    ofFloatColor colorMix = colorLeft.getLerped(colorRight, percentX);
+    //ofSetColor(colorMix);
     
     //start shader with sinus animation
     shader.begin();
-    shader.setUniform1f("time", ofGetElapsedTimef());
+    
+    // create a float array with the color values.
+    float mouseColor[4] = {colorMix.r, colorMix.g, colorMix.b, colorMix.a};
+    
+    // we can pass in four values into the shader at the same time as a float array.
+    // we do this by passing a pointer reference to the first element in the array.
+    // inside the shader these four values are set inside a vec4 object.
+    shader.setUniform4fv("mouseColor", &mouseColor[0]);
+    
+    // we can pass in a single value into the shader by using the setUniform1 function.
+    // if you want to pass in a float value, use setUniform1f.
+    // if you want to pass in a integer value, use setUniform1i.
+    shader.setUniform1f("mouseRange", 150);
+    
+    // we can pass in two values into the shader at the same time by using the setUniform2 function.
+    // inside the shader these two values are set inside a vec2 object.
+    shader.setUniform2f("mousePos", mouseX, mouseY);
     
     //get center screen
     int x = ncScene.getWidth() * 0.5;

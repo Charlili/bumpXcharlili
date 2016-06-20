@@ -1,10 +1,10 @@
 #version 150
 
-uniform vec4 globalColor;
-
 out vec4 outputColor;
+
+uniform vec4 mouseColor;
  
 void main()
 {
-    outputColor = globalColor;
+    outputColor = mouseColor;
 }
