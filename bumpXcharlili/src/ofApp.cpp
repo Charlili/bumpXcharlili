@@ -28,7 +28,8 @@ void ofApp::setup(){
     difference.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
 
     //shader with images & mask
-    backgroundImage.load("bg1.gif");
+    backgroundImage.load("bg1.mov");
+    backgroundImage.play();
     foregroundImage.load("bg2.gif");
     brushImage.load("brush.png");
     WIDTH = ncScene.getWidth();
@@ -59,6 +60,7 @@ void ofApp::update(){
 
     
     webcam.update();
+    backgroundImage.update();
     getBlobs();
     
     // Simple 'camera'
@@ -103,23 +105,26 @@ void ofApp::draw(){
     // Get center point of the screen
     // Can be handy to position stuff
     
-    debugDraw();
+    //debugDraw();
     
     int ratio = WIDTH * backgroundImage.getHeight() / HEIGHT;
     //drawBlobs();
-    fbo.begin();
+    /*fbo.begin();
     ofClear(0, 0, 0, 0);
     shader.begin();
     
     //todo:don't mask away but use mask to add color
     //shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
-    
+    shader.setUniformTexture("tex0", backgroundImage.getTexture(), 1 );
     backgroundImage.draw(0, 0,WIDTH,ratio);
     shader.end();
-    fbo.end();
+    backgroundImage.draw(0, 0,WIDTH,ratio);
+    fbo.end();*/
+    
     //todo:make foreground-image gif-loop
+    backgroundImage.draw(0, 0,WIDTH,ratio);
      //foregroundImage.draw(0,0,WIDTH,HEIGHT);
-    fbo.draw(0,0,WIDTH,ratio);
+    //fbo.draw(0,0,WIDTH,ratio);
     
     
     //get center screen

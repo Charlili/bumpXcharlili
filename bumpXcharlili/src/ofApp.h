@@ -61,7 +61,7 @@ public:
     ofShader shader;
     ofPlanePrimitive plane;
     
-    ofImage backgroundImage;
+    ofVideoPlayer backgroundImage;
     ofImage foregroundImage;
     ofImage brushImage;
     ofFbo maskFbo;
