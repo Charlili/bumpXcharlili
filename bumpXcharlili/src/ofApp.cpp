@@ -17,6 +17,7 @@ void ofApp::setup(){
     ncSetup("BUMP-MYSKETCH", 3600, 1080);
     threshold = 33;
     ncRotate = false;
+    ofEnableAlphaBlending();
     
     //blobDetection
     webcam.setup(320, 240);
@@ -95,7 +96,7 @@ void ofApp::draw(){
 
     ncScene.begin();
     ofClear(0);
-    //ofPushMatrix();
+    ofPushMatrix();
     ofEnableDepthTest();
     ofEnableAlphaBlending();
     
@@ -103,10 +104,10 @@ void ofApp::draw(){
     // Can be handy to position stuff
     
    
-    /*
+    
     int ratio = WIDTH * backgroundImage.getHeight() / HEIGHT;
-    drawBlobs();
-    fbo.begin();
+    //drawBlobs();
+    /*fbo.begin();
     ofClear(0, 0, 0, 0);
     shader.begin();
     //todo:don't mask away but use mask to add color
@@ -146,7 +147,7 @@ void ofApp::draw(){
     
     ofDisableAlphaBlending();
     ofDisableDepthTest();
-    //ofPopMatrix();
+    ofPopMatrix();
     ncScene.end();
     ncServer.publishTexture(&ncScene.getTexture());
     ncPreview();
@@ -157,40 +158,35 @@ void ofApp::draw(){
     
 }
 void ofApp::drawBlobs(){
-    ofColor c(255, 255, 255);
     
+    ofPushMatrix();
+    ofColor c(255, 255, 255);
+    maskFbo.begin();
     int scale = WIDTH / webcam.getTexture().getWidth();
-    //maskFbo.begin();
+    
     for(int i = 0; i < contour.nBlobs; i++) {
         //rectangle at blob
         ofRectangle r = contour.blobs.at(i).boundingRect;
-        //r.x = ofMap(r.x, 0, (float)webcam.getTexture().getWidth(), 0, (float)WIDTH);
-        //r.y = ofMap(r.y, 0, (float)webcam.getTexture().getHeight(), 0, (float)HEIGHT);
+        r.x = ofMap(r.x, 0, (float)webcam.getTexture().getWidth(), 0, (float)WIDTH);
+        r.y = ofMap(r.y, 0, (float)webcam.getTexture().getHeight(), 0, (float)HEIGHT);
         r.width *= scale;
         r.height *= scale;
         
-
-        //draw mask at blob
-        int brushImageSize = r.width;
-        if(r.width < r.height)brushImageSize = r.height;
-        int brushImageX = r.x;
-        int brushImageY = r.y;
-        //brushImage.draw(r.x, r.y, r.width*1.5f, r.height*1.5f);
+        //c.setHsb(10 * i,200, 200);
+        //ofSetColor(c);
         
-        
-        //color from position - will use later in shader
         float percentX = r.x / (float)WIDTH;
         percentX = ofClamp(percentX, 0, 1);
         ofColor colorLeft = ofColor::magenta;
         ofColor colorRight = ofColor::cyan;
         ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
         ofSetColor(colorMix);
-        //ofBackground(colorMix);
-        
-        
+        int brushImageSize = r.width*10;
+        if(r.width < r.height)brushImageSize = r.height*10;
+        //brushImage.draw(r.x, r.y, brushImageSize, brushImageSize);
         ofDrawRectangle(r);
     }
-    //maskFbo.end();
+    maskFbo.end();
 }
 void ofApp::debugDraw(){
     
@@ -226,6 +222,7 @@ void ofApp::debugDraw(){
         if(r.width < r.height)brushImageSize = r.height*10;
         //brushImage.draw(r.x, r.y, brushImageSize, brushImageSize);
         ofDrawRectangle(r);
+        
     }
     ofPopMatrix();
     
