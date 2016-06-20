@@ -3,22 +3,38 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     
+#ifdef TARGET_OPENGLES
+    shader.load("shadersES2/shader");
+#else
+    if(ofIsGLProgrammableRenderer()){
+        shader.load("shadersGL3/shader");
+    }else{
+        shader.load("shadersGL2/shader");
+    }
+#endif
+    
     ofBackground(0);
     ncSetup("BUMP-MYSKETCH", 3600, 1080);
     threshold = 33;
     ncRotate = false;
     
     
-    // Setup...
-    // App stuff
-    
+    //blobDetection
     webcam.setup(320, 240);
     rgb.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     rgb.mirror(false, true);
     grayscale.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     background.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     difference.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
+    //shader
+    float planeScale = 3;
+    int planeWidth = ofGetWidth() * planeScale;
+    int planeHeight = ofGetHeight() * planeScale;
+    int planeGridSize = 50;
+    int planeColums = planeWidth / planeGridSize;
+    int planeRows = planeHeight / planeGridSize;
     
+    plane.set(planeWidth, planeHeight, planeColums, planeRows, OF_PRIMITIVE_TRIANGLES);
     
     // GUI
     //parameters.add(myVariable.set("Some boolean", true));
@@ -33,16 +49,10 @@ void ofApp::update(){
     
     if(ncPaused) return;
     ofSetWindowTitle("FPS: "+ ofToString(ofGetFrameRate()));
-    
-    
-    
-    
-    // Update...
-    // App stuff
+
     
     webcam.update();
     getBlobs();
-    
     
     // Simple 'camera'
     // Just rotates stuff
@@ -88,8 +98,21 @@ void ofApp::draw(){
     // Get center point of the screen
     // Can be handy to position stuff
     
-    //drawBlobs();
+    drawBlobs();
     
+    //change color from mouse position
+    float percentX = mouseX / (float)ofGetWidth();
+    percentX = ofClamp(percentX, 0, 1);
+    ofColor colorLeft = ofColor::magenta;
+    ofColor colorRight = ofColor::cyan;
+    ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
+    ofSetColor(colorMix);
+    
+    //start shader with sinus animation
+    shader.begin();
+    shader.setUniform1f("time", ofGetElapsedTimef());
+    
+    //get center screen
     int x = ncScene.getWidth() * 0.5;
     int y = ncScene.getHeight() * 0.5;
     
@@ -97,7 +120,13 @@ void ofApp::draw(){
     ofRotateY(ncCamera.x);
     ofRotateZ(ncCamera.y);
     
-    // Draw...
+    // the mouse/touch Y position changes the rotation of the plane.
+    float percentY = mouseY / (float)ofGetHeight();
+    float rotation = ofMap(percentY, 0, 1, -60, 60, true) + 60;
+    //ofRotate(rotation, 1, 0, 0);
+    plane.drawWireframe();
+    shader.end();
+    
     // App stuff
     
     ofNoFill();
@@ -126,12 +155,10 @@ void ofApp::draw(){
 void ofApp::drawBlobs(){
     ofPushMatrix();
     ofColor c(255, 255, 255);
-    ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
+    //ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
     int scale = ncScene.getWidth() / webcam.getTexture().getWidth();
     for(int i = 0; i < contour.nBlobs; i++) {
         ofRectangle r = contour.blobs.at(i).boundingRect;
-        //r.y -= ncScene.getHeight();
-        //r.x -= ncScene.getWidth()/2;
         r.x *= scale;
         r.y *= scale;
         r.width *= scale;

@@ -56,6 +56,9 @@ public:
     bool ncPaused;
     int ncScale;
     
+    ofShader shader;
+    ofPlanePrimitive plane;
+    
     ofxSyphonServer ncServer;
     ofVec3f ncCamera;
     ofFbo ncScene;
