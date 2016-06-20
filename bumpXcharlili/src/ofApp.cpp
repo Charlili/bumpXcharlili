@@ -163,8 +163,19 @@ void ofApp::drawBlobs(){
         r.y *= scale;
         r.width *= scale;
         r.height *= scale;
-        c.setHsb(10 * i,200, 200);
-        ofSetColor(c);
+        
+        //random color
+        //c.setHsb(10 * i,200, 200);
+        //ofSetColor(c);
+        
+        //color from position
+        float percentX = r.x / (float)ofGetWidth();
+        percentX = ofClamp(percentX, 0, 1);
+        ofColor colorLeft = ofColor::magenta;
+        ofColor colorRight = ofColor::cyan;
+        ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
+        ofSetColor(colorMix);
+        
         ofDrawRectangle(r);
     }
     ofPopMatrix();
