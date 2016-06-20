@@ -29,6 +29,8 @@ public:
     //-------------------------------------------
     // My app...
     
+    int WIDTH;
+    int HEIGHT;
     ncVideoGrabber webcam;
     ofPixels pxs;
     ofImage image;

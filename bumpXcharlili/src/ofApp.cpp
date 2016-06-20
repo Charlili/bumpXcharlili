@@ -18,7 +18,6 @@ void ofApp::setup(){
     threshold = 33;
     ncRotate = false;
     
-    
     //blobDetection
     webcam.setup(320, 240);
     rgb.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
@@ -26,26 +25,16 @@ void ofApp::setup(){
     grayscale.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     background.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     difference.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
-    //shader with 3D-plane
-    float planeScale = 3;
-    int planeWidth = ofGetWidth() * planeScale;
-    int planeHeight = ofGetHeight() * planeScale;
-    int planeGridSize = 50;
-    int planeColums = planeWidth / planeGridSize;
-    int planeRows = planeHeight / planeGridSize;
-    plane.set(planeWidth, planeHeight, planeColums, planeRows, OF_PRIMITIVE_TRIANGLES);
+
     //shader with images & mask
-    backgroundImage.loadImage("A.jpg");
-    foregroundImage.loadImage("B.jpg");
-    brushImage.loadImage("brush.png");
-    int width = ofGetWidth();
-    int height = ofGetHeight();
-    maskFbo.allocate(width, height);
-    fbo.allocate(width, height);
-    bBrushDown = false;
+    backgroundImage.load("bg1.gif");
+    foregroundImage.load("bg2.gif");
+    brushImage.load("brush.png");
+    WIDTH = ofGetWidth();
+    HEIGHT = ofGetHeight();
+    maskFbo.allocate(WIDTH, HEIGHT);
+    fbo.allocate(WIDTH, HEIGHT);
     
-    // Clear the FBO's
-    // otherwise it will bring some junk with it from the memory
     maskFbo.begin();
     ofClear(0,0,0,255);
     maskFbo.end();
@@ -53,7 +42,6 @@ void ofApp::setup(){
     fbo.begin();
     ofClear(0,0,0,255);
     fbo.end();
-
     
     // GUI
     //parameters.add(myVariable.set("Some boolean", true));
@@ -78,7 +66,7 @@ void ofApp::update(){
     
     if(ncRotate){
         float dX = (float)ofGetMouseX()/(float)ofGetWidth() * 360;
-        float dY = (float)ofGetMouseY()/(float)ofGetHeight() * 360;
+        float dY = (float)ofGetMouseY()/(float)HEIGHT * 360;
         ncCamera.x += (dX - ncCamera.x) * 0.05;
         ncCamera.y += (dY - ncCamera.y) * 0.05;
     }
@@ -97,10 +85,8 @@ void ofApp::getBlobs(){
     ofPixels gray = grayscale.getPixels();
     ofPixels bg = background.getPixels();
     for(int i=0; i<webcam.getTexture().getWidth()*webcam.getTexture().getHeight(); i++){
-        
         bg[i] *= 0.9;
         bg[i] += gray[i]*0.1;
-        
     }
     background = bg;
 }
@@ -108,35 +94,20 @@ void ofApp::getBlobs(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    /*if(bBrushDown) {
-        maskFbo.begin();
-        
-        int brushImageSize = 50;
-        int brushImageX = mouseX - brushImageSize * 0.5;
-        int brushImageY = mouseY - brushImageSize * 0.5;
-        brushImage.draw(brushImageX, brushImageY, brushImageSize, brushImageSize);
-        
-        maskFbo.end();
-    }*/
     drawBlobs();
     fbo.begin();
-    // Cleaning everthing with alpha mask on 0 in order to make it transparent by default
     ofClear(0, 0, 0, 0);
-    
     shader.begin();
-    // here is where the fbo is passed to the shader
     //todo:don't mask away but use mask to add color
-    shader.setUniformTexture("maskTex", maskFbo.getTextureReference(), 1 );
+    shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
     //todo:make background-image gradient
-    backgroundImage.draw(0, 0,ofGetWidth(),ofGetHeight());
-    
-    
+    backgroundImage.draw(0, 0,WIDTH,HEIGHT);
     shader.end();
     fbo.end();
     //todo:make foreground-image gif-loop
-    foregroundImage.draw(0,0,ofGetWidth(),ofGetHeight());
+    //foregroundImage.draw(0,0,WIDTH,HEIGHT);
+    ofBackground(0,0,0);
     fbo.draw(0,0);
-
     
     ncScene.begin();
     ofClear(0);
@@ -147,35 +118,23 @@ void ofApp::draw(){
     // Get center point of the screen
     // Can be handy to position stuff
     
-    //drawBlobs();
-    
-    //change color from mouse position
-    float percentX = mouseX / (float)ofGetWidth();
-    percentX = ofClamp(percentX, 0, 1);
-    ofFloatColor colorLeft = ofColor::magenta;
-    ofFloatColor colorRight = ofColor::cyan;
-    ofFloatColor colorMix = colorLeft.getLerped(colorRight, percentX);
-    //ofSetColor(colorMix);
-    
-    //start shader with sinus animation
+    /*
+    //NOT WORKING IN ncSene
+    drawBlobs();
+    fbo.begin();
+    ofClear(0, 0, 0, 0);
     shader.begin();
-    
-    // create a float array with the color values.
-    float mouseColor[4] = {colorMix.r, colorMix.g, colorMix.b, colorMix.a};
-    
-    // we can pass in four values into the shader at the same time as a float array.
-    // we do this by passing a pointer reference to the first element in the array.
-    // inside the shader these four values are set inside a vec4 object.
-    shader.setUniform4fv("mouseColor", &mouseColor[0]);
-    
-    // we can pass in a single value into the shader by using the setUniform1 function.
-    // if you want to pass in a float value, use setUniform1f.
-    // if you want to pass in a integer value, use setUniform1i.
-    shader.setUniform1f("mouseRange", 150);
-    
-    // we can pass in two values into the shader at the same time by using the setUniform2 function.
-    // inside the shader these two values are set inside a vec2 object.
-    shader.setUniform2f("mousePos", mouseX, mouseY);
+    //todo:don't mask away but use mask to add color
+    shader.setUniformTexture("maskTex", maskFbo.getTextureReference(), 1 );
+    //todo:make background-image gradient
+    backgroundImage.draw(0, 0,WIDTH,HEIGHT);
+    shader.end();
+    fbo.end();
+    //todo:make foreground-image gif-loop
+     //foregroundImage.draw(0,0,WIDTH,HEIGHT);
+     ofBackground(0,0,0);
+    fbo.draw(0,0);
+    */
     
     //get center screen
     int x = ncScene.getWidth() * 0.5;
@@ -184,14 +143,7 @@ void ofApp::draw(){
     ofTranslate(x, y);
     ofRotateY(ncCamera.x);
     ofRotateZ(ncCamera.y);
-    
-    // the mouse/touch Y position changes the rotation of the plane.
-    float percentY = mouseY / (float)ofGetHeight();
-    float rotation = ofMap(percentY, 0, 1, -60, 60, true) + 60;
-    //ofRotate(rotation, 1, 0, 0);
-    plane.drawWireframe();
-    shader.end();
-    
+
     // App stuff
     
     ofNoFill();
@@ -218,22 +170,20 @@ void ofApp::draw(){
     
 }
 void ofApp::drawBlobs(){
-    //ofPushMatrix();
     ofColor c(255, 255, 255);
     //ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
-    int scale = ofGetWidth() / webcam.getTexture().getWidth();
+    int scale = WIDTH / webcam.getTexture().getWidth();
     maskFbo.begin();
     for(int i = 0; i < contour.nBlobs; i++) {
-        //draw rectangle at blob
+        //rectangle at blob
         ofRectangle r = contour.blobs.at(i).boundingRect;
         r.x *= scale;
         r.y *= scale;
         r.width *= scale;
         r.height *= scale;
         
+
         //draw mask at blob
-        
-        
         int brushImageSize = r.width;
         if(r.width < r.height)brushImageSize = r.height;
         int brushImageX = r.x;
@@ -241,23 +191,19 @@ void ofApp::drawBlobs(){
         brushImage.draw(r.x, r.y, brushImageSize, brushImageSize);
         
         
-        
-        //random color
-        //c.setHsb(10 * i,200, 200);
-        //ofSetColor(c);
-        
-        //color from position
-        float percentX = r.x / (float)ofGetWidth();
+        //color from position - will use later in shader
+        float percentX = r.x / (float)WIDTH;
         percentX = ofClamp(percentX, 0, 1);
         ofColor colorLeft = ofColor::magenta;
         ofColor colorRight = ofColor::cyan;
         ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
         ofSetColor(colorMix);
+        //ofBackground(colorMix);
+        
         
         //ofDrawRectangle(r);
     }
     maskFbo.end();
-    //ofPopMatrix();
 }
 void ofApp::debugDraw(){
     
