@@ -80,7 +80,7 @@ void ofApp::getBlobs(){
     difference.absDiff(background, grayscale);
     difference.threshold(threshold);
     
-    contour.findContours(difference, 10, 510, 20, false,true);
+    contour.findContours(difference, 10, 510, 40, false,true);
     
     ofPixels gray = grayscale.getPixels();
     ofPixels bg = background.getPixels();
@@ -103,26 +103,25 @@ void ofApp::draw(){
     // Get center point of the screen
     // Can be handy to position stuff
     
-   
+    debugDraw();
     
     int ratio = WIDTH * backgroundImage.getHeight() / HEIGHT;
     //drawBlobs();
-    /*fbo.begin();
+    fbo.begin();
     ofClear(0, 0, 0, 0);
     shader.begin();
+    
     //todo:don't mask away but use mask to add color
-    shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
-    //todo:make background-image gradient
+    //shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
     
     backgroundImage.draw(0, 0,WIDTH,ratio);
     shader.end();
     fbo.end();
     //todo:make foreground-image gif-loop
      //foregroundImage.draw(0,0,WIDTH,HEIGHT);
-    ofBackground(0,0,0);
     fbo.draw(0,0,WIDTH,ratio);
-    */
-    debugDraw();
+    
+    
     //get center screen
     int x = ncScene.getWidth() * 0.5;
     int y = ncScene.getHeight() * 0.5;
