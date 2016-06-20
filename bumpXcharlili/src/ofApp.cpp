@@ -30,11 +30,10 @@ void ofApp::setup(){
     backgroundImage.load("bg1.gif");
     foregroundImage.load("bg2.gif");
     brushImage.load("brush.png");
-    WIDTH = ofGetWidth();
-    HEIGHT = ofGetHeight();
+    WIDTH = ncScene.getWidth();
+    HEIGHT = ncScene.getHeight();
     maskFbo.allocate(WIDTH, HEIGHT);
     fbo.allocate(WIDTH, HEIGHT);
-    
     maskFbo.begin();
     ofClear(0,0,0,255);
     maskFbo.end();
@@ -93,7 +92,19 @@ void ofApp::getBlobs(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+
+    ncScene.begin();
+    ofClear(0);
+    //ofPushMatrix();
+    ofEnableDepthTest();
+    ofEnableAlphaBlending();
     
+    // Get center point of the screen
+    // Can be handy to position stuff
+    
+   
+    /*
+    int ratio = WIDTH * backgroundImage.getHeight() / HEIGHT;
     drawBlobs();
     fbo.begin();
     ofClear(0, 0, 0, 0);
@@ -101,41 +112,16 @@ void ofApp::draw(){
     //todo:don't mask away but use mask to add color
     shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
     //todo:make background-image gradient
-    backgroundImage.draw(0, 0,WIDTH,HEIGHT);
-    shader.end();
-    fbo.end();
-    //todo:make foreground-image gif-loop
-    //foregroundImage.draw(0,0,WIDTH,HEIGHT);
-    ofBackground(0,0,0);
-    fbo.draw(0,0);
     
-    ncScene.begin();
-    ofClear(0);
-    ofPushMatrix();
-    ofEnableDepthTest();
-    ofEnableAlphaBlending();
-    
-    // Get center point of the screen
-    // Can be handy to position stuff
-    
-    /*
-    //NOT WORKING IN ncSene
-    drawBlobs();
-    fbo.begin();
-    ofClear(0, 0, 0, 0);
-    shader.begin();
-    //todo:don't mask away but use mask to add color
-    shader.setUniformTexture("maskTex", maskFbo.getTextureReference(), 1 );
-    //todo:make background-image gradient
-    backgroundImage.draw(0, 0,WIDTH,HEIGHT);
+    backgroundImage.draw(0, 0,WIDTH,ratio);
     shader.end();
     fbo.end();
     //todo:make foreground-image gif-loop
      //foregroundImage.draw(0,0,WIDTH,HEIGHT);
-     ofBackground(0,0,0);
-    fbo.draw(0,0);
+    ofBackground(0,0,0);
+    fbo.draw(0,0,WIDTH,ratio);
     */
-    
+    debugDraw();
     //get center screen
     int x = ncScene.getWidth() * 0.5;
     int y = ncScene.getHeight() * 0.5;
@@ -144,22 +130,23 @@ void ofApp::draw(){
     ofRotateY(ncCamera.x);
     ofRotateZ(ncCamera.y);
 
+    
     // App stuff
     
-    ofNoFill();
+    /*ofNoFill();
     ofSetLineWidth(10);
     ofDrawBox(75);
     ofDrawBox(150);
     ofDrawBox(300);
     ofDrawBox(600);
     ofDrawBox(1200);
-    
+    */
     // Close drawing to FBO, export texture
     // to Syphon and preview our scene
     
     ofDisableAlphaBlending();
     ofDisableDepthTest();
-    ofPopMatrix();
+    //ofPopMatrix();
     ncScene.end();
     ncServer.publishTexture(&ncScene.getTexture());
     ncPreview();
@@ -171,14 +158,14 @@ void ofApp::draw(){
 }
 void ofApp::drawBlobs(){
     ofColor c(255, 255, 255);
-    //ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
+    
     int scale = WIDTH / webcam.getTexture().getWidth();
-    maskFbo.begin();
+    //maskFbo.begin();
     for(int i = 0; i < contour.nBlobs; i++) {
         //rectangle at blob
         ofRectangle r = contour.blobs.at(i).boundingRect;
-        r.x *= scale;
-        r.y *= scale;
+        //r.x = ofMap(r.x, 0, (float)webcam.getTexture().getWidth(), 0, (float)WIDTH);
+        //r.y = ofMap(r.y, 0, (float)webcam.getTexture().getHeight(), 0, (float)HEIGHT);
         r.width *= scale;
         r.height *= scale;
         
@@ -188,7 +175,7 @@ void ofApp::drawBlobs(){
         if(r.width < r.height)brushImageSize = r.height;
         int brushImageX = r.x;
         int brushImageY = r.y;
-        brushImage.draw(r.x, r.y, brushImageSize, brushImageSize);
+        //brushImage.draw(r.x, r.y, r.width*1.5f, r.height*1.5f);
         
         
         //color from position - will use later in shader
@@ -201,25 +188,43 @@ void ofApp::drawBlobs(){
         //ofBackground(colorMix);
         
         
-        //ofDrawRectangle(r);
+        ofDrawRectangle(r);
     }
-    maskFbo.end();
+    //maskFbo.end();
 }
 void ofApp::debugDraw(){
     
     ofPushMatrix();
-    grayscale.draw(0, 520, 640, 240);
+    
+    //grayscale.draw(0, 520, 640, 240);
     //background.draw(0, 270, 640, 240);
     //difference.draw(640, 520, 640, 240);
     //contour.draw(0, 520, 640, 240);
     
+    ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
     ofColor c(255, 255, 255);
+     int scale = WIDTH / webcam.getTexture().getWidth();
     for(int i = 0; i < contour.nBlobs -1; i++) {
+    //if(contour.nBlobs>0){
         ofRectangle r = contour.blobs.at(i).boundingRect;
-        r.x += 0;
-        r.y += 520;
-        c.setHsb(10 * i,200, 200);
-        ofSetColor(c);
+        //r.x += 0;
+        //r.y += 520;
+        r.x = ofMap(r.x, 0, (float)webcam.getTexture().getWidth(), 0, (float)WIDTH);
+        r.y = ofMap(r.y, 0, (float)webcam.getTexture().getHeight(), 0, (float)HEIGHT);
+        r.width *= scale;
+        r.height *= scale;
+        //c.setHsb(10 * i,200, 200);
+        //ofSetColor(c);
+        
+        float percentX = r.x / (float)WIDTH;
+        percentX = ofClamp(percentX, 0, 1);
+        ofColor colorLeft = ofColor::magenta;
+        ofColor colorRight = ofColor::cyan;
+        ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
+        ofSetColor(colorMix);
+        int brushImageSize = r.width*10;
+        if(r.width < r.height)brushImageSize = r.height*10;
+        //brushImage.draw(r.x, r.y, brushImageSize, brushImageSize);
         ofDrawRectangle(r);
     }
     ofPopMatrix();
