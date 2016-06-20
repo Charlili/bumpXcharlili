@@ -38,8 +38,8 @@ void ofApp::setup(){
     backgroundImage.loadImage("A.jpg");
     foregroundImage.loadImage("B.jpg");
     brushImage.loadImage("brush.png");
-    int width = backgroundImage.getWidth();
-    int height = backgroundImage.getHeight();
+    int width = ofGetWidth();
+    int height = ofGetHeight();
     maskFbo.allocate(width, height);
     fbo.allocate(width, height);
     bBrushDown = false;
@@ -108,7 +108,7 @@ void ofApp::getBlobs(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    if(bBrushDown) {
+    /*if(bBrushDown) {
         maskFbo.begin();
         
         int brushImageSize = 50;
@@ -117,22 +117,24 @@ void ofApp::draw(){
         brushImage.draw(brushImageX, brushImageY, brushImageSize, brushImageSize);
         
         maskFbo.end();
-    }
-    
+    }*/
+    drawBlobs();
     fbo.begin();
     // Cleaning everthing with alpha mask on 0 in order to make it transparent by default
     ofClear(0, 0, 0, 0);
     
     shader.begin();
     // here is where the fbo is passed to the shader
+    //todo:don't mask away but use mask to add color
     shader.setUniformTexture("maskTex", maskFbo.getTextureReference(), 1 );
+    //todo:make background-image gradient
+    backgroundImage.draw(0, 0,ofGetWidth(),ofGetHeight());
     
-    backgroundImage.draw(0, 0);
     
     shader.end();
     fbo.end();
-    
-    foregroundImage.draw(0,0);
+    //todo:make foreground-image gif-loop
+    foregroundImage.draw(0,0,ofGetWidth(),ofGetHeight());
     fbo.draw(0,0);
 
     
@@ -145,7 +147,7 @@ void ofApp::draw(){
     // Get center point of the screen
     // Can be handy to position stuff
     
-    drawBlobs();
+    //drawBlobs();
     
     //change color from mouse position
     float percentX = mouseX / (float)ofGetWidth();
@@ -216,16 +218,29 @@ void ofApp::draw(){
     
 }
 void ofApp::drawBlobs(){
-    ofPushMatrix();
+    //ofPushMatrix();
     ofColor c(255, 255, 255);
     //ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
-    int scale = ncScene.getWidth() / webcam.getTexture().getWidth();
+    int scale = ofGetWidth() / webcam.getTexture().getWidth();
+    maskFbo.begin();
     for(int i = 0; i < contour.nBlobs; i++) {
+        //draw rectangle at blob
         ofRectangle r = contour.blobs.at(i).boundingRect;
         r.x *= scale;
         r.y *= scale;
         r.width *= scale;
         r.height *= scale;
+        
+        //draw mask at blob
+        
+        
+        int brushImageSize = r.width;
+        if(r.width < r.height)brushImageSize = r.height;
+        int brushImageX = r.x;
+        int brushImageY = r.y;
+        brushImage.draw(r.x, r.y, brushImageSize, brushImageSize);
+        
+        
         
         //random color
         //c.setHsb(10 * i,200, 200);
@@ -239,9 +254,10 @@ void ofApp::drawBlobs(){
         ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
         ofSetColor(colorMix);
         
-        ofDrawRectangle(r);
+        //ofDrawRectangle(r);
     }
-    ofPopMatrix();
+    maskFbo.end();
+    //ofPopMatrix();
 }
 void ofApp::debugDraw(){
     
