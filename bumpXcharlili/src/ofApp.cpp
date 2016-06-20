@@ -26,15 +26,34 @@ void ofApp::setup(){
     grayscale.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     background.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     difference.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
-    //shader
+    //shader with 3D-plane
     float planeScale = 3;
     int planeWidth = ofGetWidth() * planeScale;
     int planeHeight = ofGetHeight() * planeScale;
     int planeGridSize = 50;
     int planeColums = planeWidth / planeGridSize;
     int planeRows = planeHeight / planeGridSize;
-    
     plane.set(planeWidth, planeHeight, planeColums, planeRows, OF_PRIMITIVE_TRIANGLES);
+    //shader with images & mask
+    backgroundImage.loadImage("A.jpg");
+    foregroundImage.loadImage("B.jpg");
+    brushImage.loadImage("brush.png");
+    int width = backgroundImage.getWidth();
+    int height = backgroundImage.getHeight();
+    maskFbo.allocate(width, height);
+    fbo.allocate(width, height);
+    bBrushDown = false;
+    
+    // Clear the FBO's
+    // otherwise it will bring some junk with it from the memory
+    maskFbo.begin();
+    ofClear(0,0,0,255);
+    maskFbo.end();
+    
+    fbo.begin();
+    ofClear(0,0,0,255);
+    fbo.end();
+
     
     // GUI
     //parameters.add(myVariable.set("Some boolean", true));
@@ -88,6 +107,34 @@ void ofApp::getBlobs(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    
+    if(bBrushDown) {
+        maskFbo.begin();
+        
+        int brushImageSize = 50;
+        int brushImageX = mouseX - brushImageSize * 0.5;
+        int brushImageY = mouseY - brushImageSize * 0.5;
+        brushImage.draw(brushImageX, brushImageY, brushImageSize, brushImageSize);
+        
+        maskFbo.end();
+    }
+    
+    fbo.begin();
+    // Cleaning everthing with alpha mask on 0 in order to make it transparent by default
+    ofClear(0, 0, 0, 0);
+    
+    shader.begin();
+    // here is where the fbo is passed to the shader
+    shader.setUniformTexture("maskTex", maskFbo.getTextureReference(), 1 );
+    
+    backgroundImage.draw(0, 0);
+    
+    shader.end();
+    fbo.end();
+    
+    foregroundImage.draw(0,0);
+    fbo.draw(0,0);
+
     
     ncScene.begin();
     ofClear(0);
@@ -249,12 +296,12 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    
+    bBrushDown = true;
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-    
+    bBrushDown = false;
 }
 
 //--------------------------------------------------------------

@@ -59,6 +59,13 @@ public:
     ofShader shader;
     ofPlanePrimitive plane;
     
+    ofImage backgroundImage;
+    ofImage foregroundImage;
+    ofImage brushImage;
+    ofFbo maskFbo;
+    ofFbo fbo;
+    bool bBrushDown;
+    
     ofxSyphonServer ncServer;
     ofVec3f ncCamera;
     ofFbo ncScene;
