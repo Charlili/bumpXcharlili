@@ -105,26 +105,25 @@ void ofApp::draw(){
     // Get center point of the screen
     // Can be handy to position stuff
     
-    //debugDraw();
+    debugDraw();
     
     int ratio = WIDTH * backgroundImage.getHeight() / HEIGHT;
     //drawBlobs();
-    /*fbo.begin();
+    fbo.begin();
     ofClear(0, 0, 0, 0);
     shader.begin();
     
     //todo:don't mask away but use mask to add color
     //shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
-    shader.setUniformTexture("tex0", backgroundImage.getTexture(), 1 );
+    //shader.setUniformTexture("tex0", backgroundImage.getTexture(), 1 );
     backgroundImage.draw(0, 0,WIDTH,ratio);
     shader.end();
-    backgroundImage.draw(0, 0,WIDTH,ratio);
-    fbo.end();*/
+    fbo.end();
     
     //todo:make foreground-image gif-loop
-    backgroundImage.draw(0, 0,WIDTH,ratio);
+    //backgroundImage.draw(0, 0,WIDTH,ratio);
      //foregroundImage.draw(0,0,WIDTH,HEIGHT);
-    //fbo.draw(0,0,WIDTH,ratio);
+    fbo.draw(0,0,WIDTH,ratio);
     
     
     //get center screen
