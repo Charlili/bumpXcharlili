@@ -121,6 +121,12 @@
 		46BBCC26D60B589958BF0D03 /* ofxSyphonServer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxSyphonServer.h; path = ../../../addons/ofxSyphon/src/ofxSyphonServer.h; sourceTree = SOURCE_ROOT; };
 		48C0AC021D16804600C25400 /* ncVideoGrabber.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ncVideoGrabber.cpp; sourceTree = "<group>"; };
 		48C0AC031D16804600C25400 /* ncVideoGrabber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ncVideoGrabber.h; sourceTree = "<group>"; };
+		48C53B7F1D191A7B00B5BAEA /* shader.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.frag; sourceTree = "<group>"; };
+		48C53B801D191A7B00B5BAEA /* shader.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vert; sourceTree = "<group>"; };
+		48C53B821D191A7B00B5BAEA /* shader.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.frag; sourceTree = "<group>"; };
+		48C53B831D191A7B00B5BAEA /* shader.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vert; sourceTree = "<group>"; };
+		48C53B851D191A7B00B5BAEA /* shader.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.frag; sourceTree = "<group>"; };
+		48C53B861D191A7B00B5BAEA /* shader.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vert; sourceTree = "<group>"; };
 		49EFFCF36CF194CCE0E1FAAB /* kdtree_index.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = kdtree_index.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/kdtree_index.h; sourceTree = SOURCE_ROOT; };
 		4CD2228F2C8116D51179E3A3 /* devmem2d.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = devmem2d.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/core/devmem2d.hpp; sourceTree = SOURCE_ROOT; };
 		4CFA8A81B93736DE82F0090A /* gpumat.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = gpumat.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/core/gpumat.hpp; sourceTree = SOURCE_ROOT; };
@@ -482,6 +488,36 @@
 			name = ofxGui;
 			sourceTree = "<group>";
 		};
+		48C53B7E1D191A7B00B5BAEA /* shadersES2 */ = {
+			isa = PBXGroup;
+			children = (
+				48C53B7F1D191A7B00B5BAEA /* shader.frag */,
+				48C53B801D191A7B00B5BAEA /* shader.vert */,
+			);
+			name = shadersES2;
+			path = bin/data/shadersES2;
+			sourceTree = SOURCE_ROOT;
+		};
+		48C53B811D191A7B00B5BAEA /* shadersGL2 */ = {
+			isa = PBXGroup;
+			children = (
+				48C53B821D191A7B00B5BAEA /* shader.frag */,
+				48C53B831D191A7B00B5BAEA /* shader.vert */,
+			);
+			name = shadersGL2;
+			path = bin/data/shadersGL2;
+			sourceTree = SOURCE_ROOT;
+		};
+		48C53B841D191A7B00B5BAEA /* shadersGL3 */ = {
+			isa = PBXGroup;
+			children = (
+				48C53B851D191A7B00B5BAEA /* shader.frag */,
+				48C53B861D191A7B00B5BAEA /* shader.vert */,
+			);
+			name = shadersGL3;
+			path = bin/data/shadersGL3;
+			sourceTree = SOURCE_ROOT;
+		};
 		49A9E39C52C2DF4DDA1E185F /* src */ = {
 			isa = PBXGroup;
 			children = (
@@ -812,6 +848,9 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				48C53B7E1D191A7B00B5BAEA /* shadersES2 */,
+				48C53B811D191A7B00B5BAEA /* shadersGL2 */,
+				48C53B841D191A7B00B5BAEA /* shadersGL3 */,
 				48C0AC021D16804600C25400 /* ncVideoGrabber.cpp */,
 				48C0AC031D16804600C25400 /* ncVideoGrabber.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,

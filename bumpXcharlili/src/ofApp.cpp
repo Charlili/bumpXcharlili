@@ -44,6 +44,50 @@ void ofApp::setup(){
     ofClear(0,0,0,255);
     fbo.end();
     
+    
+    nTri = 100; //The number of the triangles
+    nVert= nTri * 3; //The number of the vertices
+    float Rad = 700; //The sphere's radius
+    float rad = 200; //Maximal triangle's "radius"
+    //(formally, it's the maximal coordinates'
+    //deviation from the triangle's center)
+    //Fill the vertices array
+    vertices.resize( nVert ); //Set the array size
+    for (int i=0; i<nTri; i++) { //Scan all the triangles
+        //Generate the center of the triangle
+        //as a random point on the sphere
+        //Take the random point from
+        //cube [-1,1]x[-1,1]x[-1,1]
+        int x = ncScene.getWidth() * 0.5;
+        int y = ncScene.getHeight() * 0.5;
+        
+        ofPoint center( ofRandom( -1, 1 ),
+                       ofRandom( -1, 1 ),
+                       ofRandom( -1, 1 ) );
+        center.normalize(); //Normalize vector's length to 1
+        center *= Rad; //Now the center vector has
+        
+        //center.x = x;
+        //length Rad
+        //Generate the triangle's vertices
+        //as the center plus random point from
+        //[-rad, rad]x[-rad, rad]x[-rad, rad]
+        for (int j=0; j<3; j++) {
+            vertices[ i*3 + j ] = center + ofPoint( x + ofRandom( -rad, rad ),
+                             y + ofRandom( -rad, rad ),
+                             ofRandom( -rad, rad ) );
+        }
+    }
+    //Fill the array of triangles' colors
+    colors.resize( nTri );
+    for (int i=0; i<nTri; i++) {
+        //Take a random color from black to red
+        colors[i] = ofColor( ofRandom( 0, 255 ), 0, 0 );
+    }
+    float time0 = 0;
+    float phase = 0;
+    float distortAmount = 0;
+    
     // GUI
     //parameters.add(myVariable.set("Some boolean", true));
     //parameters.add(myClass.parameters);
@@ -72,6 +116,16 @@ void ofApp::update(){
         ncCamera.x += (dX - ncCamera.x) * 0.05;
         ncCamera.y += (dY - ncCamera.y) * 0.05;
     }
+    
+    //Compute dt
+    float time = ofGetElapsedTimef();
+    float dt = ofClamp( time - time0, 0, 0.1 );
+    time0 = time;
+    float speed = ofMap( mouseY, 0, HEIGHT, 0, 5.0 );
+    phase += speed * dt;
+    distortAmount = ofMap( mouseX, 0, WIDTH, 0, 1.0 );
+    
+    
     
 }
 void ofApp::getBlobs(){
@@ -102,38 +156,55 @@ void ofApp::draw(){
     ofEnableDepthTest();
     ofEnableAlphaBlending();
     
-    // Get center point of the screen
-    // Can be handy to position stuff
-    
     debugDraw();
-    
-    int ratio = WIDTH * backgroundImage.getHeight() / HEIGHT;
-    //drawBlobs();
-    fbo.begin();
-    ofClear(0, 0, 0, 0);
-    shader.begin();
-    
-    //todo:don't mask away but use mask to add color
-    //shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
-    //shader.setUniformTexture("tex0", backgroundImage.getTexture(), 1 );
-    backgroundImage.draw(0, 0,WIDTH,ratio);
-    shader.end();
-    fbo.end();
-    
-    //todo:make foreground-image gif-loop
-    //backgroundImage.draw(0, 0,WIDTH,ratio);
-     //foregroundImage.draw(0,0,WIDTH,HEIGHT);
-    fbo.draw(0,0,WIDTH,ratio);
-    
     
     //get center screen
     int x = ncScene.getWidth() * 0.5;
     int y = ncScene.getHeight() * 0.5;
     
+    int ratio = WIDTH * backgroundImage.getHeight() / HEIGHT;
+    //drawBlobs();
+    fbo.begin();
+    ofClear(0, 0, 0, 0);
+    ofPushMatrix();
+    ofEnableDepthTest();
+    
+    float time = ofGetElapsedTimef(); //Get time in seconds
+    float angle = time * 10; //Compute angle. We rotate at speed
+    //10 degrees per second
+    ofTranslate(x, y);
+    ofRotate( angle, 0, 1, 0 );
+    ofTranslate(-x, -y);
+    shader.begin();
+    ofSetColor( ofColor(255,255,255) );
+    //shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
+    shader.setUniformTexture("tex0", backgroundImage.getTexture(), 1 );
+    //shader.setUniformTexture("tex1", foregroundImage.getTexture(), 1 );
+    ofLog(OF_LOG_NOTICE, "the phase is %f and the distort is %f", phase, distortAmount);
+    shader.setUniform1f("phase", phase );
+    shader.setUniform1f("distortAmount", distortAmount );
+    //backgroundImage.draw(0, 0,WIDTH,ratio);
+
+    for (int i=0; i<nTri; i++) {
+        //ofSetColor( ofColor(255,255,255) ); //Set color
+        ofDrawTriangle( vertices[ i*3 ],
+                   vertices[ i*3 + 1 ],
+                   vertices[ i*3 + 2 ] ); //Draw triangle
+    }
+    shader.end();
+    ofPopMatrix();
+    ofDisableAlphaBlending();
+    fbo.end();
+    fbo.draw(0,0);
+    
+    
     ofTranslate(x, y);
     ofRotateY(ncCamera.x);
     ofRotateZ(ncCamera.y);
 
+    //todo:make foreground-image gif-loop
+    //backgroundImage.draw(0, 0,WIDTH,ratio);
+    //foregroundImage.draw(0,0,WIDTH,HEIGHT);
     
     // App stuff
     
@@ -150,6 +221,8 @@ void ofApp::draw(){
     
     ofDisableAlphaBlending();
     ofDisableDepthTest();
+    
+    
     ofPopMatrix();
     ncScene.end();
     ncServer.publishTexture(&ncScene.getTexture());
@@ -200,7 +273,7 @@ void ofApp::debugDraw(){
     //difference.draw(640, 520, 640, 240);
     //contour.draw(0, 520, 640, 240);
     
-    ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
+    //ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
     ofColor c(255, 255, 255);
      int scale = WIDTH / webcam.getTexture().getWidth();
     for(int i = 0; i < contour.nBlobs -1; i++) {

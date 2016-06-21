@@ -68,9 +68,18 @@ public:
     ofFbo fbo;
     bool bBrushDown;
     
+    vector<ofPoint> vertices;
+    vector<ofColor> colors;
+    int nTri; //The number of triangles
+    int nVert; //The number of the vertices equals nTri * 3
+    float time0;
+    float phase;
+    float distortAmount;
+    
     ofxSyphonServer ncServer;
     ofVec3f ncCamera;
     ofFbo ncScene;
+    
     
     void ncSetup(string name, int width, int height);
     void ncPreview();
