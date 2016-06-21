@@ -58,7 +58,8 @@ public:
     bool ncPaused;
     int ncScale;
     
-    ofShader shader;
+    ofShader shader_deform;
+    ofShader shader_mask;
     ofPlanePrimitive plane;
     
     ofVideoPlayer backgroundImage;

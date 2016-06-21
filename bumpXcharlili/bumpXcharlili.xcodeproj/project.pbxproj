@@ -123,10 +123,12 @@
 		48C0AC031D16804600C25400 /* ncVideoGrabber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ncVideoGrabber.h; sourceTree = "<group>"; };
 		48C53B7F1D191A7B00B5BAEA /* shader.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.frag; sourceTree = "<group>"; };
 		48C53B801D191A7B00B5BAEA /* shader.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vert; sourceTree = "<group>"; };
-		48C53B821D191A7B00B5BAEA /* shader.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.frag; sourceTree = "<group>"; };
-		48C53B831D191A7B00B5BAEA /* shader.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vert; sourceTree = "<group>"; };
 		48C53B851D191A7B00B5BAEA /* shader.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.frag; sourceTree = "<group>"; };
 		48C53B861D191A7B00B5BAEA /* shader.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vert; sourceTree = "<group>"; };
+		48C53B871D195AAE00B5BAEA /* shader_deform.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader_deform.frag; sourceTree = "<group>"; };
+		48C53B881D195AAE00B5BAEA /* shader_deform.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader_deform.vert; sourceTree = "<group>"; };
+		48C53B891D195AAE00B5BAEA /* shader_mask.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader_mask.frag; sourceTree = "<group>"; };
+		48C53B8A1D195AAE00B5BAEA /* shader_mask.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader_mask.vert; sourceTree = "<group>"; };
 		49EFFCF36CF194CCE0E1FAAB /* kdtree_index.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = kdtree_index.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/kdtree_index.h; sourceTree = SOURCE_ROOT; };
 		4CD2228F2C8116D51179E3A3 /* devmem2d.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = devmem2d.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/core/devmem2d.hpp; sourceTree = SOURCE_ROOT; };
 		4CFA8A81B93736DE82F0090A /* gpumat.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = gpumat.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/core/gpumat.hpp; sourceTree = SOURCE_ROOT; };
@@ -501,8 +503,10 @@
 		48C53B811D191A7B00B5BAEA /* shadersGL2 */ = {
 			isa = PBXGroup;
 			children = (
-				48C53B821D191A7B00B5BAEA /* shader.frag */,
-				48C53B831D191A7B00B5BAEA /* shader.vert */,
+				48C53B871D195AAE00B5BAEA /* shader_deform.frag */,
+				48C53B881D195AAE00B5BAEA /* shader_deform.vert */,
+				48C53B891D195AAE00B5BAEA /* shader_mask.frag */,
+				48C53B8A1D195AAE00B5BAEA /* shader_mask.vert */,
 			);
 			name = shadersGL2;
 			path = bin/data/shadersGL2;

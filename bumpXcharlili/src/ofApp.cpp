@@ -4,17 +4,19 @@
 void ofApp::setup(){
     
 #ifdef TARGET_OPENGLES
-    shader.load("shadersES2/shader");
+    shader_deform.load("shadersES2/shader_deform");
 #else
     if(ofIsGLProgrammableRenderer()){
-        shader.load("shadersGL3/shader");
+        shader_deform.load("shadersGL3/shader_deform");
     }else{
-        shader.load("shadersGL2/shader");
+        shader_deform.load("shadersGL2/shader_deform");
+        shader_mask.load("shadersGL2/shader_mask");
+
     }
 #endif
     
     ofBackground(0);
-    ncSetup("BUMP-MYSKETCH", 3600, 1080);
+    ncSetup("BUMP-CHARLILI", 3600, 1080);
     threshold = 33;
     ncRotate = false;
     ofEnableAlphaBlending();
@@ -27,15 +29,15 @@ void ofApp::setup(){
     background.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     difference.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
 
-    //shader with images & mask
-    backgroundImage.load("bg1.mov");
+    //shader_deform with images & mask
+    backgroundImage.load("bg3.mov");
     backgroundImage.play();
     foregroundImage.load("bg2.gif");
     brushImage.load("brush.png");
     WIDTH = ncScene.getWidth();
     HEIGHT = ncScene.getHeight();
-    maskFbo.allocate(WIDTH, HEIGHT);
-    fbo.allocate(WIDTH, HEIGHT);
+    maskFbo.allocate(WIDTH+1, HEIGHT+1);
+    fbo.allocate(WIDTH+1, HEIGHT+1);
     maskFbo.begin();
     ofClear(0,0,0,255);
     maskFbo.end();
@@ -47,8 +49,8 @@ void ofApp::setup(){
     
     nTri = 100; //The number of the triangles
     nVert= nTri * 3; //The number of the vertices
-    float Rad = 700; //The sphere's radius
-    float rad = 200; //Maximal triangle's "radius"
+    float Rad = 800; //The sphere's radius
+    float rad = 250; //Maximal triangle's "radius"
     //(formally, it's the maximal coordinates'
     //deviation from the triangle's center)
     //Fill the vertices array
@@ -58,8 +60,8 @@ void ofApp::setup(){
         //as a random point on the sphere
         //Take the random point from
         //cube [-1,1]x[-1,1]x[-1,1]
-        int x = ncScene.getWidth() * 0.5;
-        int y = ncScene.getHeight() * 0.5;
+        int x = WIDTH * 0.3;
+        int y = HEIGHT* 0.5;
         
         ofPoint center( ofRandom( -1, 1 ),
                        ofRandom( -1, 1 ),
@@ -156,18 +158,21 @@ void ofApp::draw(){
     ofEnableDepthTest();
     ofEnableAlphaBlending();
     
-    debugDraw();
+    backgroundImage.draw(0,-HEIGHT,WIDTH*3,HEIGHT*3);
+
+    
     
     //get center screen
     int x = ncScene.getWidth() * 0.5;
     int y = ncScene.getHeight() * 0.5;
     
-    int ratio = WIDTH * backgroundImage.getHeight() / HEIGHT;
+    int newWidth = backgroundImage.getWidth() * HEIGHT / backgroundImage.getHeight();
     //drawBlobs();
-    fbo.begin();
+    maskFbo.begin();
     ofClear(0, 0, 0, 0);
     ofPushMatrix();
     ofEnableDepthTest();
+    ofEnableAlphaBlending();
     
     float time = ofGetElapsedTimef(); //Get time in seconds
     float angle = time * 10; //Compute angle. We rotate at speed
@@ -175,33 +180,44 @@ void ofApp::draw(){
     ofTranslate(x, y);
     ofRotate( angle, 0, 1, 0 );
     ofTranslate(-x, -y);
-    shader.begin();
+    shader_deform.begin();
     ofSetColor( ofColor(255,255,255) );
-    //shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
-    shader.setUniformTexture("tex0", backgroundImage.getTexture(), 1 );
-    //shader.setUniformTexture("tex1", foregroundImage.getTexture(), 1 );
-    ofLog(OF_LOG_NOTICE, "the phase is %f and the distort is %f", phase, distortAmount);
-    shader.setUniform1f("phase", phase );
-    shader.setUniform1f("distortAmount", distortAmount );
-    //backgroundImage.draw(0, 0,WIDTH,ratio);
-
+    shader_deform.setUniform1f("phase", phase );
+    shader_deform.setUniform1f("distortAmount", distortAmount );
     for (int i=0; i<nTri; i++) {
-        //ofSetColor( ofColor(255,255,255) ); //Set color
+        ofSetColor( ofColor(255,255,255) ); //Set color
         ofDrawTriangle( vertices[ i*3 ],
                    vertices[ i*3 + 1 ],
                    vertices[ i*3 + 2 ] ); //Draw triangle
     }
-    shader.end();
+    shader_deform.end();
     ofPopMatrix();
     ofDisableAlphaBlending();
+    ofDisableDepthTest();
+    maskFbo.end();
+    
+    fbo.begin();
+    ofClear(0, 0, 0, 0);
+    ofEnableAlphaBlending();
+    shader_mask.begin();
+    if(maskFbo.isAllocated())shader_mask.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
+    backgroundImage.draw(0,-HEIGHT/2,WIDTH,HEIGHT*2);
+    //ofTranslate(-x, -y);
+    shader_mask.end();
+    //backgroundImage.draw(0,-HEIGHT/2,WIDTH,HEIGHT*2);
+    ofDisableAlphaBlending();
     fbo.end();
-    fbo.draw(0,0);
+    if(fbo.isAllocated())fbo.draw(0,0);
     
+    debugDraw();
     
+    //maskFbo.draw(0,0);
+    //backgroundImage.draw(0, 0,WIDTH,HEIGHT);
     ofTranslate(x, y);
+    
     ofRotateY(ncCamera.x);
     ofRotateZ(ncCamera.y);
-
+    
     //todo:make foreground-image gif-loop
     //backgroundImage.draw(0, 0,WIDTH,ratio);
     //foregroundImage.draw(0,0,WIDTH,HEIGHT);
