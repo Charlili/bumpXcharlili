@@ -123,9 +123,9 @@ void ofApp::update(){
     float time = ofGetElapsedTimef();
     float dt = ofClamp( time - time0, 0, 0.1 );
     time0 = time;
-    float speed = ofMap( mouseY, 0, HEIGHT, 0, 5.0 );
+    float speed = ofMap( mouseY, 0, HEIGHT, 0, 2.0 );
     phase += speed * dt;
-    distortAmount = ofMap( mouseX, 0, WIDTH, 0, 1.0 );
+    distortAmount = ofMap( mouseX, 0, WIDTH, 0.5, 1.0 );
     
     
     
@@ -297,12 +297,17 @@ void ofApp::debugDraw(){
         ofRectangle r = contour.blobs.at(i).boundingRect;
         //r.x += 0;
         //r.y += 520;
+        
         r.x = ofMap(r.x, 0, (float)webcam.getTexture().getWidth(), 0, (float)WIDTH);
         r.y = ofMap(r.y, 0, (float)webcam.getTexture().getHeight(), 0, (float)HEIGHT);
-        r.width *= scale;
-        r.height *= scale;
+        r.width *= scale * 2;
+        r.height *= scale * 2;
         //c.setHsb(10 * i,200, 200);
         //ofSetColor(c);
+        float time = ofGetElapsedTimef(); //Get time in seconds
+        float angle = time * -40; //Compute angle. We rotate at speed
+        //10 degrees per second
+        //ofRotate( angle, 0, 0, 1 );
         
         float percentX = r.x / (float)WIDTH;
         percentX = ofClamp(percentX, 0, 1);
@@ -314,6 +319,7 @@ void ofApp::debugDraw(){
         if(r.width < r.height)brushImageSize = r.height*10;
         //brushImage.draw(r.x, r.y, brushImageSize, brushImageSize);
         ofDrawRectangle(r);
+        //ofDrawTriangle(r.getTopLeft(), r.getBottomLeft(), r.getBottomRight());
         
     }
     ofPopMatrix();
