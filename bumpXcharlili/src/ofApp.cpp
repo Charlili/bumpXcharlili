@@ -32,7 +32,7 @@ void ofApp::setup(){
     //shader_deform with images & mask
     backgroundImage.load("bg3.mov");
     backgroundImage.play();
-    foregroundImage.load("bg2.gif");
+    foregroundImage.load("bg4.png");
     brushImage.load("brush.png");
     WIDTH = ncScene.getWidth();
     HEIGHT = ncScene.getHeight();
@@ -127,8 +127,6 @@ void ofApp::update(){
     phase += speed * dt;
     distortAmount = ofMap( mouseX, 0, WIDTH, 0.5, 1.0 );
     
-    
-    
 }
 void ofApp::getBlobs(){
     
@@ -158,15 +156,14 @@ void ofApp::draw(){
     ofEnableDepthTest();
     ofEnableAlphaBlending();
     
-    backgroundImage.draw(0,-HEIGHT,WIDTH*3,HEIGHT*3);
-
+    //backgroundImage.draw(0,-HEIGHT,WIDTH*3,HEIGHT*3);
+    foregroundImage.draw(-WIDTH*0.5,-HEIGHT*0.5,WIDTH*1.5,HEIGHT*1.5);
     
     
     //get center screen
     int x = ncScene.getWidth() * 0.5;
     int y = ncScene.getHeight() * 0.5;
     
-    int newWidth = backgroundImage.getWidth() * HEIGHT / backgroundImage.getHeight();
     //drawBlobs();
     maskFbo.begin();
     ofClear(0, 0, 0, 0);
@@ -201,7 +198,8 @@ void ofApp::draw(){
     ofEnableAlphaBlending();
     shader_mask.begin();
     if(maskFbo.isAllocated())shader_mask.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
-    backgroundImage.draw(0,-HEIGHT/2,WIDTH,HEIGHT*2);
+    //backgroundImage.draw(0,-HEIGHT/2,WIDTH,HEIGHT*2);
+    foregroundImage.draw(0,0);
     //ofTranslate(-x, -y);
     shader_mask.end();
     //backgroundImage.draw(0,-HEIGHT/2,WIDTH,HEIGHT*2);

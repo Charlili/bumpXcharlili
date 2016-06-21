@@ -11,5 +11,6 @@ void main()
     
     vec3 src = texture2DRect(tex0, texCoordVarying).rgb;
     float mask = texture2DRect(maskTex, texCoordVarying).r;
+    if(mask == 255)mask=100;
     gl_FragColor = vec4(src , mask);
 }
