@@ -39,17 +39,22 @@ void ofApp::setup(){
     
     WIDTH = ncScene.getWidth();
     HEIGHT = ncScene.getHeight();
-    maskFbo.allocate(WIDTH+1, HEIGHT+1);
-    fbo.allocate(WIDTH+1, HEIGHT+1);
+    maskFbo.allocate(WIDTH, HEIGHT);
+    fbo.allocate(WIDTH, HEIGHT);
     maskFbo.begin();
     ofClear(0,0,0,255);
     maskFbo.end();
+    blobFbo.allocate(WIDTH,HEIGHT);
+    blobFbo.begin();
+    ofClear(0,0,0,0);
+    blobFbo.end();
     
     fbo.begin();
     ofClear(0,0,0,255);
     fbo.end();
     psBlend.setup(WIDTH, HEIGHT);
-    blendMode = 2;
+    psLijntjes.setup(WIDTH,HEIGHT);
+    blendMode = 3;
     
     nTri = 100; //The number of the triangles
     nVert= nTri * 3; //The number of the vertices
@@ -118,6 +123,10 @@ void ofApp::update(){
     //vignetteImage.draw(-WIDTH*0.75,-HEIGHT*0.75,WIDTH*3,HEIGHT*3);
     vignetteImage.draw(0,0);
     psBlend.end();
+    
+    psLijntjes.begin();
+    psBlend.draw(fbo.getTexture(), blendMode);
+    psLijntjes.end();
     
     // Simple 'camera'
     // Just rotates stuff
@@ -221,9 +230,11 @@ void ofApp::draw(){
     fbo.end();
     //vignetteImage.draw(0,0,WIDTH,HEIGHT);
 
-    if(fbo.isAllocated()) psBlend.draw(fbo.getTexture(), blendMode);//fbo.draw(0,0);
+    if(fbo.isAllocated()) psBlend.draw(fbo.getTexture(), 21);//2 //21
     
     debugDraw();
+    //blobFbo.draw(0,0);
+    psLijntjes.draw(blobFbo.getTexture(),3);//3 //3
     
     
     //maskFbo.draw(0,0);
@@ -294,10 +305,18 @@ void ofApp::drawBlobs(){
         ofDrawRectangle(r);
     }
     maskFbo.end();
+    ofPopMatrix();
 }
 void ofApp::debugDraw(){
     
     ofPushMatrix();
+    blobFbo.begin();
+    ofClear(0, 0, 0, 0);
+    //ofEnableAlphaBlending();
+    
+    
+    //ofColor c(255, 255, 255);
+    
     
     //grayscale.draw(0, 520, 640, 240);
     //background.draw(0, 270, 640, 240);
@@ -305,7 +324,6 @@ void ofApp::debugDraw(){
     //contour.draw(0, 520, 640, 240);
     
     //ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
-    ofColor c(255, 255, 255);
      int scale = WIDTH / webcam.getTexture().getWidth();
     for(int i = 0; i < contour.nBlobs -1; i++) {
     //if(contour.nBlobs>0){
@@ -333,7 +351,12 @@ void ofApp::debugDraw(){
         ofDrawRectangle(r.x, 0, r.width, HEIGHT);
         
     }
+    
+    
+    //ofDisableAlphaBlending();
+    blobFbo.end();
     ofPopMatrix();
+    
     
 }
 

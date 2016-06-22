@@ -69,8 +69,10 @@ public:
     ofImage vignetteImage;
     ofFbo maskFbo;
     ofFbo fbo;
+    ofFbo blobFbo;
     bool bBrushDown;
     ofxPSBlend psBlend;
+    ofxPSBlend psLijntjes;
     int blendMode;
     
     vector<ofPoint> vertices;
