@@ -5,6 +5,7 @@
 #include "ofxSyphon.h"
 #include "ofxGui.h"
 #include "ofxOpenCv.h"
+#include "ofxPSBlend.h"
 
 class ofApp : public ofBaseApp{
 public:
@@ -65,9 +66,12 @@ public:
     ofVideoPlayer backgroundImage;
     ofImage foregroundImage;
     ofImage brushImage;
+    ofImage vignetteImage;
     ofFbo maskFbo;
     ofFbo fbo;
     bool bBrushDown;
+    ofxPSBlend psBlend;
+    int blendMode;
     
     vector<ofPoint> vertices;
     vector<ofColor> colors;

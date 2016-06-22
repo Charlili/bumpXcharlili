@@ -34,6 +34,9 @@ void ofApp::setup(){
     backgroundImage.play();
     foregroundImage.load("bg4.png");
     brushImage.load("brush.png");
+    vignetteImage.load("bg5.png");
+    
+    
     WIDTH = ncScene.getWidth();
     HEIGHT = ncScene.getHeight();
     maskFbo.allocate(WIDTH+1, HEIGHT+1);
@@ -45,7 +48,8 @@ void ofApp::setup(){
     fbo.begin();
     ofClear(0,0,0,255);
     fbo.end();
-    
+    psBlend.setup(WIDTH, HEIGHT);
+    blendMode = 2;
     
     nTri = 100; //The number of the triangles
     nVert= nTri * 3; //The number of the vertices
@@ -109,6 +113,12 @@ void ofApp::update(){
     backgroundImage.update();
     getBlobs();
     
+    psBlend.begin();
+    //foregroundImage.draw(-WIDTH*0.5,-HEIGHT*0.5,WIDTH*1.5,HEIGHT*1.5);
+    //vignetteImage.draw(-WIDTH*0.75,-HEIGHT*0.75,WIDTH*3,HEIGHT*3);
+    vignetteImage.draw(0,0);
+    psBlend.end();
+    
     // Simple 'camera'
     // Just rotates stuff
     
@@ -156,9 +166,8 @@ void ofApp::draw(){
     ofEnableDepthTest();
     ofEnableAlphaBlending();
     
-    //backgroundImage.draw(0,-HEIGHT,WIDTH*3,HEIGHT*3);
-    foregroundImage.draw(-WIDTH*0.5,-HEIGHT*0.5,WIDTH*1.5,HEIGHT*1.5);
-    
+    //foregroundImage.draw(-WIDTH*0.5,-HEIGHT*0.5,WIDTH*1.5,HEIGHT*1.5);
+    vignetteImage.draw(0,0);
     
     //get center screen
     int x = ncScene.getWidth() * 0.5;
@@ -196,18 +205,26 @@ void ofApp::draw(){
     fbo.begin();
     ofClear(0, 0, 0, 0);
     ofEnableAlphaBlending();
+    //foregroundImage.draw(-WIDTH*0.75,-HEIGHT*0.75,WIDTH*3,HEIGHT*3);
+    //vignetteImage.draw(0,0);
     shader_mask.begin();
     if(maskFbo.isAllocated())shader_mask.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
     //backgroundImage.draw(0,-HEIGHT/2,WIDTH,HEIGHT*2);
     foregroundImage.draw(0,0);
+    
+    
+    
     //ofTranslate(-x, -y);
     shader_mask.end();
     //backgroundImage.draw(0,-HEIGHT/2,WIDTH,HEIGHT*2);
     ofDisableAlphaBlending();
     fbo.end();
-    if(fbo.isAllocated())fbo.draw(0,0);
+    //vignetteImage.draw(0,0,WIDTH,HEIGHT);
+
+    if(fbo.isAllocated()) psBlend.draw(fbo.getTexture(), blendMode);//fbo.draw(0,0);
     
     debugDraw();
+    
     
     //maskFbo.draw(0,0);
     //backgroundImage.draw(0, 0,WIDTH,HEIGHT);
@@ -333,9 +350,37 @@ void ofApp::keyPressed(int key){
     if(key == 'p') ncPaused = !ncPaused;
     
     if(key == ' ') background = grayscale;
-    if(key == OF_KEY_DOWN) threshold--;
-    if(key == OF_KEY_UP) threshold++;
-    ofLog(OF_LOG_NOTICE, "threshold = %f", threshold);
+    //if(key == OF_KEY_DOWN) threshold--;
+    //if(key == OF_KEY_UP) threshold++;
+    //ofLog(OF_LOG_NOTICE, "threshold = %f", threshold);
+    
+    if (key == OF_KEY_UP)
+    {
+        if (blendMode >= 24)
+        {
+            blendMode = 0;
+        }
+        else {
+            blendMode++;
+        }
+        ofLog(OF_LOG_NOTICE, "blendMode = %d", blendMode);
+    }
+    if (key == OF_KEY_DOWN)
+    {
+        if (blendMode <= 0)
+        {
+            blendMode = 24;
+        }
+        else
+        {
+            blendMode--;
+        }
+        ofLog(OF_LOG_NOTICE, "blendMode = %d", blendMode);
+    }
+    if (key == ' ')
+    {
+        ofSaveFrame();
+    }
     
 }
 
