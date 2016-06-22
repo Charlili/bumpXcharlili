@@ -315,8 +315,8 @@ void ofApp::debugDraw(){
         
         r.x = ofMap(r.x, 0, (float)webcam.getTexture().getWidth(), 0, (float)WIDTH);
         r.y = ofMap(r.y, 0, (float)webcam.getTexture().getHeight(), 0, (float)HEIGHT);
-        r.width *= scale * 2;
-        r.height *= scale * 2;
+        r.width *= scale;
+        r.height *= scale;
         //c.setHsb(10 * i,200, 200);
         //ofSetColor(c);
         float time = ofGetElapsedTimef(); //Get time in seconds
@@ -330,11 +330,7 @@ void ofApp::debugDraw(){
         ofColor colorRight = ofColor::cyan;
         ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
         ofSetColor(colorMix);
-        int brushImageSize = r.width*10;
-        if(r.width < r.height)brushImageSize = r.height*10;
-        //brushImage.draw(r.x, r.y, brushImageSize, brushImageSize);
-        ofDrawRectangle(r);
-        //ofDrawTriangle(r.getTopLeft(), r.getBottomLeft(), r.getBottomRight());
+        ofDrawRectangle(r.x, 0, r.width, HEIGHT);
         
     }
     ofPopMatrix();
