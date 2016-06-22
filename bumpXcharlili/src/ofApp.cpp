@@ -11,7 +11,7 @@ void ofApp::setup(){
     }else{
         shader_deform.load("shadersGL2/shader_deform");
         shader_mask.load("shadersGL2/shader_mask");
-
+        
     }
 #endif
     
@@ -28,12 +28,9 @@ void ofApp::setup(){
     grayscale.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     background.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
     difference.allocate(webcam.getTexture().getWidth(), webcam.getTexture().getHeight());
-
+    
     //shader_deform with images & mask
-    backgroundImage.load("bg3.mov");
-    backgroundImage.play();
     foregroundImage.load("bg4.png");
-    brushImage.load("brush.png");
     vignetteImage.load("bg5.png");
     
     
@@ -56,44 +53,24 @@ void ofApp::setup(){
     psLijntjes.setup(WIDTH,HEIGHT);
     blendMode = 3;
     
-    nTri = 100; //The number of the triangles
-    nVert= nTri * 3; //The number of the vertices
-    float Rad = 800; //The sphere's radius
-    float rad = 250; //Maximal triangle's "radius"
-    //(formally, it's the maximal coordinates'
-    //deviation from the triangle's center)
-    //Fill the vertices array
+    nTri = 100;
+    nVert= nTri * 3;
+    float Rad = 800; //sphere's radius
+    float rad = 250; //triangle's "radius"
     vertices.resize( nVert ); //Set the array size
-    for (int i=0; i<nTri; i++) { //Scan all the triangles
-        //Generate the center of the triangle
-        //as a random point on the sphere
-        //Take the random point from
-        //cube [-1,1]x[-1,1]x[-1,1]
+    for (int i=0; i<nTri; i++) {
         int x = WIDTH * 0.3;
         int y = HEIGHT* 0.5;
-        
         ofPoint center( ofRandom( -1, 1 ),
                        ofRandom( -1, 1 ),
                        ofRandom( -1, 1 ) );
-        center.normalize(); //Normalize vector's length to 1
-        center *= Rad; //Now the center vector has
-        
-        //center.x = x;
-        //length Rad
-        //Generate the triangle's vertices
-        //as the center plus random point from
-        //[-rad, rad]x[-rad, rad]x[-rad, rad]
+        center.normalize();
+        center *= Rad;
         for (int j=0; j<3; j++) {
             vertices[ i*3 + j ] = center + ofPoint( x + ofRandom( -rad, rad ),
-                             y + ofRandom( -rad, rad ),
-                             ofRandom( -rad, rad ) );
+                                                   y + ofRandom( -rad, rad ),
+                                                   ofRandom( -rad, rad ) );
         }
-    }
-    //Fill the array of triangles' colors
-    colors.resize( nTri );
-    for (int i=0; i<nTri; i++) {
-        //Take a random color from black to red
-        colors[i] = ofColor( ofRandom( 0, 255 ), 0, 0 );
     }
     float time0 = 0;
     float phase = 0;
@@ -112,15 +89,11 @@ void ofApp::update(){
     
     if(ncPaused) return;
     ofSetWindowTitle("FPS: "+ ofToString(ofGetFrameRate()));
-
     
     webcam.update();
-    backgroundImage.update();
     getBlobs();
     
     psBlend.begin();
-    //foregroundImage.draw(-WIDTH*0.5,-HEIGHT*0.5,WIDTH*1.5,HEIGHT*1.5);
-    //vignetteImage.draw(-WIDTH*0.75,-HEIGHT*0.75,WIDTH*3,HEIGHT*3);
     vignetteImage.draw(0,0);
     psBlend.end();
     
@@ -168,14 +141,13 @@ void ofApp::getBlobs(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
+    
     ncScene.begin();
     ofClear(0);
     ofPushMatrix();
     ofEnableDepthTest();
     ofEnableAlphaBlending();
     
-    //foregroundImage.draw(-WIDTH*0.5,-HEIGHT*0.5,WIDTH*1.5,HEIGHT*1.5);
     vignetteImage.draw(0,0);
     
     //get center screen
@@ -191,19 +163,17 @@ void ofApp::draw(){
     
     float time = ofGetElapsedTimef(); //Get time in seconds
     float angle = time * 10; //Compute angle. We rotate at speed
-    //10 degrees per second
     ofTranslate(x, y);
     ofRotate( angle, 0, 1, 0 );
     ofTranslate(-x, -y);
     shader_deform.begin();
-    ofSetColor( ofColor(255,255,255) );
     shader_deform.setUniform1f("phase", phase );
     shader_deform.setUniform1f("distortAmount", distortAmount );
     for (int i=0; i<nTri; i++) {
         ofSetColor( ofColor(255,255,255) ); //Set color
         ofDrawTriangle( vertices[ i*3 ],
-                   vertices[ i*3 + 1 ],
-                   vertices[ i*3 + 2 ] ); //Draw triangle
+                       vertices[ i*3 + 1 ],
+                       vertices[ i*3 + 2 ] ); //Draw triangle
     }
     shader_deform.end();
     ofPopMatrix();
@@ -214,50 +184,24 @@ void ofApp::draw(){
     fbo.begin();
     ofClear(0, 0, 0, 0);
     ofEnableAlphaBlending();
-    //foregroundImage.draw(-WIDTH*0.75,-HEIGHT*0.75,WIDTH*3,HEIGHT*3);
-    //vignetteImage.draw(0,0);
     shader_mask.begin();
     if(maskFbo.isAllocated())shader_mask.setUniformTexture("maskTex", maskFbo.getTexture(), 1 );
-    //backgroundImage.draw(0,-HEIGHT/2,WIDTH,HEIGHT*2);
     foregroundImage.draw(0,0);
     
-    
-    
-    //ofTranslate(-x, -y);
     shader_mask.end();
-    //backgroundImage.draw(0,-HEIGHT/2,WIDTH,HEIGHT*2);
     ofDisableAlphaBlending();
     fbo.end();
-    //vignetteImage.draw(0,0,WIDTH,HEIGHT);
-
+    
     if(fbo.isAllocated()) psBlend.draw(fbo.getTexture(), 21);//2 //21
     
-    debugDraw();
-    //blobFbo.draw(0,0);
+    drawBlobs();
     psLijntjes.draw(blobFbo.getTexture(),3);//3 //3
     
-    
-    //maskFbo.draw(0,0);
-    //backgroundImage.draw(0, 0,WIDTH,HEIGHT);
     ofTranslate(x, y);
-    
     ofRotateY(ncCamera.x);
     ofRotateZ(ncCamera.y);
     
-    //todo:make foreground-image gif-loop
-    //backgroundImage.draw(0, 0,WIDTH,ratio);
-    //foregroundImage.draw(0,0,WIDTH,HEIGHT);
     
-    // App stuff
-    
-    /*ofNoFill();
-    ofSetLineWidth(10);
-    ofDrawBox(75);
-    ofDrawBox(150);
-    ofDrawBox(300);
-    ofDrawBox(600);
-    ofDrawBox(1200);
-    */
     // Close drawing to FBO, export texture
     // to Syphon and preview our scene
     
@@ -270,90 +214,34 @@ void ofApp::draw(){
     ncServer.publishTexture(&ncScene.getTexture());
     ncPreview();
     
-    //DebugDraw
     webcam.draw(220, 10);
-    //debugDraw();
-    
 }
 void ofApp::drawBlobs(){
     
     ofPushMatrix();
-    ofColor c(255, 255, 255);
-    maskFbo.begin();
-    int scale = WIDTH / webcam.getTexture().getWidth();
-    
-    for(int i = 0; i < contour.nBlobs; i++) {
-        //rectangle at blob
-        ofRectangle r = contour.blobs.at(i).boundingRect;
-        r.x = ofMap(r.x, 0, (float)webcam.getTexture().getWidth(), 0, (float)WIDTH);
-        r.y = ofMap(r.y, 0, (float)webcam.getTexture().getHeight(), 0, (float)HEIGHT);
-        r.width *= scale;
-        r.height *= scale;
-        
-        //c.setHsb(10 * i,200, 200);
-        //ofSetColor(c);
-        
-        float percentX = r.x / (float)WIDTH;
-        percentX = ofClamp(percentX, 0, 1);
-        ofColor colorLeft = ofColor::magenta;
-        ofColor colorRight = ofColor::cyan;
-        ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
-        ofSetColor(colorMix);
-        int brushImageSize = r.width*10;
-        if(r.width < r.height)brushImageSize = r.height*10;
-        //brushImage.draw(r.x, r.y, brushImageSize, brushImageSize);
-        ofDrawRectangle(r);
-    }
-    maskFbo.end();
-    ofPopMatrix();
-}
-void ofApp::debugDraw(){
-    
-    ofPushMatrix();
     blobFbo.begin();
     ofClear(0, 0, 0, 0);
-    //ofEnableAlphaBlending();
     
-    
-    //ofColor c(255, 255, 255);
-    
-    
-    //grayscale.draw(0, 520, 640, 240);
-    //background.draw(0, 270, 640, 240);
-    //difference.draw(640, 520, 640, 240);
-    //contour.draw(0, 520, 640, 240);
-    
-    //ofLog(OF_LOG_NOTICE, "the number of blobs is %d", contour.nBlobs);
-     int scale = WIDTH / webcam.getTexture().getWidth();
+    int scale = WIDTH / webcam.getTexture().getWidth();
     for(int i = 0; i < contour.nBlobs -1; i++) {
-    //if(contour.nBlobs>0){
-        ofRectangle r = contour.blobs.at(i).boundingRect;
-        //r.x += 0;
-        //r.y += 520;
-        
-        r.x = ofMap(r.x, 0, (float)webcam.getTexture().getWidth(), 0, (float)WIDTH);
-        r.y = ofMap(r.y, 0, (float)webcam.getTexture().getHeight(), 0, (float)HEIGHT);
-        r.width *= scale;
-        r.height *= scale;
-        //c.setHsb(10 * i,200, 200);
-        //ofSetColor(c);
-        float time = ofGetElapsedTimef(); //Get time in seconds
-        float angle = time * -40; //Compute angle. We rotate at speed
-        //10 degrees per second
-        //ofRotate( angle, 0, 0, 1 );
-        
-        float percentX = r.x / (float)WIDTH;
-        percentX = ofClamp(percentX, 0, 1);
-        ofColor colorLeft = ofColor::magenta;
-        ofColor colorRight = ofColor::cyan;
-        ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
-        ofSetColor(colorMix);
-        ofDrawRectangle(r.x, 0, r.width, HEIGHT);
-        
+        if(contour.nBlobs>0){
+            ofRectangle r = contour.blobs.at(i).boundingRect;
+            
+            r.x = ofMap(r.x, 0, (float)webcam.getTexture().getWidth(), 0, (float)WIDTH);
+            r.y = ofMap(r.y, 0, (float)webcam.getTexture().getHeight(), 0, (float)HEIGHT);
+            r.width *= scale;
+            r.height *= scale;
+            
+            float percentX = r.x / (float)WIDTH;
+            percentX = ofClamp(percentX, 0, 1);
+            ofColor colorLeft = ofColor::magenta;
+            ofColor colorRight = ofColor::cyan;
+            ofColor colorMix = colorLeft.getLerped(colorRight, percentX);
+            ofSetColor(colorMix);
+            ofDrawRectangle(r.x, 0, r.width, HEIGHT);
+        }
     }
-    
-    
-    //ofDisableAlphaBlending();
+
     blobFbo.end();
     ofPopMatrix();
     
@@ -369,37 +257,9 @@ void ofApp::keyPressed(int key){
     if(key == 'p') ncPaused = !ncPaused;
     
     if(key == ' ') background = grayscale;
-    //if(key == OF_KEY_DOWN) threshold--;
-    //if(key == OF_KEY_UP) threshold++;
-    //ofLog(OF_LOG_NOTICE, "threshold = %f", threshold);
+    if(key == OF_KEY_DOWN) {threshold--;ofLog(OF_LOG_NOTICE, "threshold = %f", threshold);}
+    if(key == OF_KEY_UP) {threshold++;ofLog(OF_LOG_NOTICE, "threshold = %f", threshold);}
     
-    if (key == OF_KEY_UP)
-    {
-        if (blendMode >= 24)
-        {
-            blendMode = 0;
-        }
-        else {
-            blendMode++;
-        }
-        ofLog(OF_LOG_NOTICE, "blendMode = %d", blendMode);
-    }
-    if (key == OF_KEY_DOWN)
-    {
-        if (blendMode <= 0)
-        {
-            blendMode = 24;
-        }
-        else
-        {
-            blendMode--;
-        }
-        ofLog(OF_LOG_NOTICE, "blendMode = %d", blendMode);
-    }
-    if (key == ' ')
-    {
-        ofSaveFrame();
-    }
     
 }
 
@@ -420,12 +280,10 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    bBrushDown = true;
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-    bBrushDown = false;
 }
 
 //--------------------------------------------------------------

@@ -13,7 +13,6 @@ public:
     void setup();
     void update();
     void draw();
-    void debugDraw();
     void drawBlobs();
     void getBlobs();
 		
@@ -42,6 +41,24 @@ public:
     ofxCvContourFinder contour;
     float threshold;
     
+    ofShader shader_deform;
+    ofShader shader_mask;
+    
+    ofImage foregroundImage;
+    ofImage vignetteImage;
+    ofFbo maskFbo;
+    ofFbo fbo;
+    ofFbo blobFbo;
+    ofxPSBlend psBlend;
+    ofxPSBlend psLijntjes;
+    int blendMode;
+    
+    vector<ofPoint> vertices;
+    int nTri; //The number of triangles
+    int nVert; //The number of the vertices equals nTri * 3
+    float time0;
+    float phase;
+    float distortAmount;
     
     
     //-------------------------------------------
@@ -58,30 +75,6 @@ public:
     bool ncRotate;
     bool ncPaused;
     int ncScale;
-    
-    ofShader shader_deform;
-    ofShader shader_mask;
-    ofPlanePrimitive plane;
-    
-    ofVideoPlayer backgroundImage;
-    ofImage foregroundImage;
-    ofImage brushImage;
-    ofImage vignetteImage;
-    ofFbo maskFbo;
-    ofFbo fbo;
-    ofFbo blobFbo;
-    bool bBrushDown;
-    ofxPSBlend psBlend;
-    ofxPSBlend psLijntjes;
-    int blendMode;
-    
-    vector<ofPoint> vertices;
-    vector<ofColor> colors;
-    int nTri; //The number of triangles
-    int nVert; //The number of the vertices equals nTri * 3
-    float time0;
-    float phase;
-    float distortAmount;
     
     ofxSyphonServer ncServer;
     ofVec3f ncCamera;
